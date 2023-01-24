@@ -1,0 +1,446 @@
+package com.android.insecurebankv2;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Environment;
+import android.preference.PreferenceManager;
+import android.util.Base64;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+public class DoTransfer extends Activity {
+  public static final String MYPREFS2 = "mySharedPreferences";
+  
+  String acc1;
+  
+  String acc2;
+  
+  EditText amount;
+  
+  Button button1;
+  
+  EditText from;
+  
+  Button getAccounts;
+  
+  InputStream in;
+  
+  JSONObject jsonObject;
+  
+  String number = "5554";
+  
+  String passNormalized;
+  
+  EditText phoneNumber;
+  
+  String protocol = "http://";
+  
+  BufferedReader reader;
+  
+  HttpResponse responseBody;
+  
+  String result;
+  
+  SharedPreferences serverDetails;
+  
+  String serverip = "";
+  
+  String serverport = "";
+  
+  EditText to;
+  
+  Button transfer;
+  
+  String usernameBase64ByteString;
+  
+  private String getNormalizedPassword(String paramString) throws UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
+    return (new CryptoClass()).aesDeccryptedString(paramString);
+  }
+  
+  public void callPreferences() {
+    startActivity(new Intent((Context)this, FilePrefActivity.class));
+  }
+  
+  public String convertStreamToString(InputStream paramInputStream) throws IOException {
+    try {
+      BufferedReader bufferedReader = new BufferedReader();
+      InputStreamReader inputStreamReader = new InputStreamReader();
+      this(paramInputStream, "UTF-8");
+      this(inputStreamReader);
+      this.reader = bufferedReader;
+    } catch (UnsupportedEncodingException unsupportedEncodingException) {
+      unsupportedEncodingException.printStackTrace();
+    } 
+    StringBuilder stringBuilder = new StringBuilder();
+    while (true) {
+      String str = this.reader.readLine();
+      if (str != null) {
+        stringBuilder.append(str + "\n");
+        continue;
+      } 
+      paramInputStream.close();
+      return stringBuilder.toString();
+    } 
+  }
+  
+  protected void onCreate(Bundle paramBundle) {
+    super.onCreate(paramBundle);
+    setContentView(2130968603);
+    this.serverDetails = PreferenceManager.getDefaultSharedPreferences((Context)this);
+    this.serverip = this.serverDetails.getString("serverip", null);
+    this.serverport = this.serverDetails.getString("serverport", null);
+    this.transfer = (Button)findViewById(2131558513);
+    this.transfer.setOnClickListener(new View.OnClickListener() {
+          public void onClick(View param1View) {
+            DoTransfer.this.from = (EditText)DoTransfer.this.findViewById(2131558507);
+            DoTransfer.this.to = (EditText)DoTransfer.this.findViewById(2131558509);
+            (new DoTransfer.RequestDoTransferTask()).execute((Object[])new String[] { "username" });
+          }
+        });
+    this.button1 = (Button)findViewById(2131558510);
+    this.button1.setOnClickListener(new View.OnClickListener() {
+          public void onClick(View param1View) {
+            (new DoTransfer.RequestDoGets2()).execute((Object[])new String[] { "username" });
+          }
+        });
+  }
+  
+  public boolean onCreateOptionsMenu(Menu paramMenu) {
+    getMenuInflater().inflate(2131623938, paramMenu);
+    return true;
+  }
+  
+  public boolean onOptionsItemSelected(MenuItem paramMenuItem) {
+    Intent intent;
+    null = true;
+    int i = paramMenuItem.getItemId();
+    if (i == 2131558557) {
+      callPreferences();
+      return null;
+    } 
+    if (i == 2131558558) {
+      intent = new Intent(getBaseContext(), LoginActivity.class);
+      intent.addFlags(67108864);
+      startActivity(intent);
+      return null;
+    } 
+    return super.onOptionsItemSelected((MenuItem)intent);
+  }
+  
+  public class RequestDoGets2 extends AsyncTask<String, String, String> {
+    public void AsyncHttpPost(String param1String) {}
+    
+    public String doInBackground(String... param1VarArgs) {
+      DefaultHttpClient defaultHttpClient = new DefaultHttpClient();
+      HttpPost httpPost = new HttpPost(DoTransfer.this.protocol + DoTransfer.this.serverip + ":" + DoTransfer.this.serverport + "/getaccounts");
+      SharedPreferences sharedPreferences = DoTransfer.this.getSharedPreferences("mySharedPreferences", 0);
+      byte[] arrayOfByte = Base64.decode(sharedPreferences.getString("EncryptedUsername", null), 0);
+      try {
+        DoTransfer doTransfer = DoTransfer.this;
+        String str1 = new String();
+        this(arrayOfByte, "UTF-8");
+        doTransfer.usernameBase64ByteString = str1;
+      } catch (UnsupportedEncodingException unsupportedEncodingException) {
+        unsupportedEncodingException.printStackTrace();
+      } 
+      String str = sharedPreferences.getString("superSecurePassword", null);
+      try {
+        DoTransfer.this.passNormalized = DoTransfer.this.getNormalizedPassword(str);
+        ArrayList<BasicNameValuePair> arrayList = new ArrayList(2);
+        arrayList.add(new BasicNameValuePair("username", DoTransfer.this.usernameBase64ByteString));
+        arrayList.add(new BasicNameValuePair("password", DoTransfer.this.passNormalized));
+        try {
+          UrlEncodedFormEntity urlEncodedFormEntity = new UrlEncodedFormEntity();
+          this(arrayList);
+          httpPost.setEntity((HttpEntity)urlEncodedFormEntity);
+        } catch (UnsupportedEncodingException unsupportedEncodingException) {
+          unsupportedEncodingException.printStackTrace();
+        } 
+        try {
+          DoTransfer.this.responseBody = defaultHttpClient.execute((HttpUriRequest)httpPost);
+        } catch (IOException iOException) {
+          iOException.printStackTrace();
+        } 
+        try {
+          DoTransfer.this.in = DoTransfer.this.responseBody.getEntity().getContent();
+          try {
+            DoTransfer.this.result = DoTransfer.this.convertStreamToString(DoTransfer.this.in);
+          } catch (IOException iOException) {
+            iOException.printStackTrace();
+          } 
+          DoTransfer.this.result = DoTransfer.this.result.replace("\n", "");
+          if (DoTransfer.this.result != null && DoTransfer.this.result.indexOf("Correct") != -1)
+            try {
+              DoTransfer doTransfer = DoTransfer.this;
+              JSONObject jSONObject = new JSONObject();
+              this(DoTransfer.this.result);
+              doTransfer.jsonObject = jSONObject;
+              DoTransfer.this.acc1 = DoTransfer.this.jsonObject.getString("from");
+              DoTransfer.this.acc2 = DoTransfer.this.jsonObject.getString("to");
+            } catch (JSONException jSONException) {
+              jSONException.printStackTrace();
+            }  
+          DoTransfer.this.runOnUiThread(new Runnable() {
+                public void run() {
+                  DoTransfer.RequestDoGets2.this.AsyncHttpPost("result");
+                  DoTransfer.this.from = (EditText)DoTransfer.this.findViewById(2131558507);
+                  DoTransfer.this.to = (EditText)DoTransfer.this.findViewById(2131558509);
+                  DoTransfer.this.from.setText(DoTransfer.this.acc1);
+                  DoTransfer.this.to.setText(DoTransfer.this.acc2);
+                }
+              });
+          return "dinesh";
+        } catch (IllegalStateException illegalStateException) {
+        
+        } catch (IOException iOException) {}
+      } catch (InvalidKeyException invalidKeyException) {
+      
+      } catch (UnsupportedEncodingException unsupportedEncodingException) {
+      
+      } catch (NoSuchAlgorithmException noSuchAlgorithmException) {
+      
+      } catch (NoSuchPaddingException noSuchPaddingException) {
+      
+      } catch (InvalidAlgorithmParameterException invalidAlgorithmParameterException) {
+      
+      } catch (IllegalBlockSizeException illegalBlockSizeException) {
+      
+      } catch (BadPaddingException badPaddingException) {}
+    }
+    
+    public void onPostExecute(String param1String) {}
+    
+    public void onProgressUpdate(String... param1VarArgs) {}
+  }
+  
+  class null implements Runnable {
+    public void run() {
+      this.this$1.AsyncHttpPost("result");
+      DoTransfer.this.from = (EditText)DoTransfer.this.findViewById(2131558507);
+      DoTransfer.this.to = (EditText)DoTransfer.this.findViewById(2131558509);
+      DoTransfer.this.from.setText(DoTransfer.this.acc1);
+      DoTransfer.this.to.setText(DoTransfer.this.acc2);
+    }
+  }
+  
+  public class RequestDoTransferTask extends AsyncTask<String, String, String> {
+    public void AsyncHttpTransferPost(String param1String) {}
+    
+    protected String doInBackground(String... param1VarArgs) {
+      DefaultHttpClient defaultHttpClient = new DefaultHttpClient();
+      HttpPost httpPost = new HttpPost(DoTransfer.this.protocol + DoTransfer.this.serverip + ":" + DoTransfer.this.serverport + "/dotransfer");
+      SharedPreferences sharedPreferences = DoTransfer.this.getSharedPreferences("mySharedPreferences", 0);
+      byte[] arrayOfByte = Base64.decode(sharedPreferences.getString("EncryptedUsername", null), 0);
+      try {
+        DoTransfer doTransfer = DoTransfer.this;
+        String str1 = new String();
+        this(arrayOfByte, "UTF-8");
+        doTransfer.usernameBase64ByteString = str1;
+      } catch (UnsupportedEncodingException unsupportedEncodingException) {
+        unsupportedEncodingException.printStackTrace();
+      } 
+      String str = sharedPreferences.getString("superSecurePassword", null);
+      try {
+        DoTransfer.this.passNormalized = DoTransfer.this.getNormalizedPassword(str);
+        ArrayList<BasicNameValuePair> arrayList = new ArrayList(5);
+        arrayList.add(new BasicNameValuePair("username", DoTransfer.this.usernameBase64ByteString));
+        arrayList.add(new BasicNameValuePair("password", DoTransfer.this.passNormalized));
+        DoTransfer.this.from = (EditText)DoTransfer.this.findViewById(2131558507);
+        DoTransfer.this.to = (EditText)DoTransfer.this.findViewById(2131558509);
+        DoTransfer.this.amount = (EditText)DoTransfer.this.findViewById(2131558512);
+        arrayList.add(new BasicNameValuePair("from_acc", DoTransfer.this.from.getText().toString()));
+        arrayList.add(new BasicNameValuePair("to_acc", DoTransfer.this.to.getText().toString()));
+        arrayList.add(new BasicNameValuePair("amount", DoTransfer.this.amount.getText().toString()));
+        try {
+          UrlEncodedFormEntity urlEncodedFormEntity = new UrlEncodedFormEntity();
+          this(arrayList);
+          httpPost.setEntity((HttpEntity)urlEncodedFormEntity);
+        } catch (UnsupportedEncodingException unsupportedEncodingException) {
+          unsupportedEncodingException.printStackTrace();
+        } 
+        try {
+          DoTransfer.this.responseBody = defaultHttpClient.execute((HttpUriRequest)httpPost);
+        } catch (IOException iOException) {
+          iOException.printStackTrace();
+        } 
+        try {
+          DoTransfer.this.in = DoTransfer.this.responseBody.getEntity().getContent();
+          try {
+            DoTransfer.this.result = DoTransfer.this.convertStreamToString(DoTransfer.this.in);
+          } catch (IOException iOException) {
+            iOException.printStackTrace();
+          } 
+          DoTransfer.this.result = DoTransfer.this.result.replace("\n", "");
+          DoTransfer.this.runOnUiThread(new Runnable() {
+                public void run() {
+                  DoTransfer.RequestDoTransferTask.this.AsyncHttpTransferPost("result");
+                  if (DoTransfer.this.result != null) {
+                    if (DoTransfer.this.result.indexOf("Success") != -1) {
+                      Toast.makeText(DoTransfer.this.getApplicationContext(), "Transfer Successful", 1).show();
+                      try {
+                        DoTransfer doTransfer = DoTransfer.this;
+                        JSONObject jSONObject = new JSONObject();
+                        this(DoTransfer.this.result);
+                        doTransfer.jsonObject = jSONObject;
+                        DoTransfer.this.acc1 = DoTransfer.this.jsonObject.getString("from");
+                        DoTransfer.this.acc2 = DoTransfer.this.jsonObject.getString("to");
+                        PrintStream printStream = System.out;
+                        StringBuilder stringBuilder = new StringBuilder();
+                        this();
+                        printStream.println(stringBuilder.append("Message:").append(DoTransfer.this.jsonObject.getString("message")).append(" From:").append(DoTransfer.this.from.getText().toString()).append(" To:").append(DoTransfer.this.to.getText().toString()).append(" Amount:").append(DoTransfer.this.amount.getText().toString()).toString());
+                        String str = new String();
+                        stringBuilder = new StringBuilder();
+                        this();
+                        this(stringBuilder.append("\nMessage:Success From:").append(DoTransfer.this.from.getText().toString()).append(" To:").append(DoTransfer.this.to.getText().toString()).append(" Amount:").append(DoTransfer.this.amount.getText().toString()).append("\n").toString());
+                        try {
+                          stringBuilder = new StringBuilder();
+                          this();
+                          String str3 = stringBuilder.append(Environment.getExternalStorageDirectory()).append("/Statements_").append(DoTransfer.this.usernameBase64ByteString).append(".html").toString();
+                          BufferedWriter bufferedWriter = new BufferedWriter();
+                          FileWriter fileWriter = new FileWriter();
+                          this(str3, true);
+                          this(fileWriter);
+                          bufferedWriter.write(str);
+                          bufferedWriter.write("<hr>");
+                          bufferedWriter.close();
+                        } catch (IOException iOException) {}
+                      } catch (JSONException jSONException) {
+                        jSONException.printStackTrace();
+                      } 
+                      return;
+                    } 
+                  } else {
+                    return;
+                  } 
+                  Toast.makeText(DoTransfer.this.getApplicationContext(), "Transfer Failed", 1).show();
+                  System.out.println("Message:Failure From:" + DoTransfer.this.from.getText().toString() + " To:" + DoTransfer.this.to.getText().toString() + " Amount:" + DoTransfer.this.amount.getText().toString());
+                  String str1 = new String("\nMessage:Failure From:" + DoTransfer.this.from.getText().toString() + " To:" + DoTransfer.this.to.getText().toString() + " Amount:" + DoTransfer.this.amount.getText().toString() + "\n");
+                  String str2 = Environment.getExternalStorageDirectory() + "/Statements_" + DoTransfer.this.usernameBase64ByteString + ".html";
+                  try {
+                    BufferedWriter bufferedWriter = new BufferedWriter();
+                    FileWriter fileWriter = new FileWriter();
+                    this(str2, true);
+                    this(fileWriter);
+                    bufferedWriter.write(str1);
+                    bufferedWriter.write("<hr>");
+                    bufferedWriter.close();
+                  } catch (IOException iOException) {
+                    iOException.toString();
+                  } 
+                }
+              });
+          return "dinesh";
+        } catch (IllegalStateException illegalStateException) {
+        
+        } catch (IOException iOException) {}
+      } catch (InvalidKeyException invalidKeyException) {
+      
+      } catch (UnsupportedEncodingException unsupportedEncodingException) {
+      
+      } catch (NoSuchAlgorithmException noSuchAlgorithmException) {
+      
+      } catch (NoSuchPaddingException noSuchPaddingException) {
+      
+      } catch (InvalidAlgorithmParameterException invalidAlgorithmParameterException) {
+      
+      } catch (IllegalBlockSizeException illegalBlockSizeException) {
+      
+      } catch (BadPaddingException badPaddingException) {}
+    }
+    
+    protected void onPostExecute(String param1String) {}
+    
+    protected void onProgressUpdate(String... param1VarArgs) {}
+  }
+  
+  class null implements Runnable {
+    public void run() {
+      this.this$1.AsyncHttpTransferPost("result");
+      if (DoTransfer.this.result != null) {
+        if (DoTransfer.this.result.indexOf("Success") != -1) {
+          Toast.makeText(DoTransfer.this.getApplicationContext(), "Transfer Successful", 1).show();
+          try {
+            DoTransfer doTransfer = DoTransfer.this;
+            JSONObject jSONObject = new JSONObject();
+            this(DoTransfer.this.result);
+            doTransfer.jsonObject = jSONObject;
+            DoTransfer.this.acc1 = DoTransfer.this.jsonObject.getString("from");
+            DoTransfer.this.acc2 = DoTransfer.this.jsonObject.getString("to");
+            PrintStream printStream = System.out;
+            StringBuilder stringBuilder = new StringBuilder();
+            this();
+            printStream.println(stringBuilder.append("Message:").append(DoTransfer.this.jsonObject.getString("message")).append(" From:").append(DoTransfer.this.from.getText().toString()).append(" To:").append(DoTransfer.this.to.getText().toString()).append(" Amount:").append(DoTransfer.this.amount.getText().toString()).toString());
+            String str = new String();
+            stringBuilder = new StringBuilder();
+            this();
+            this(stringBuilder.append("\nMessage:Success From:").append(DoTransfer.this.from.getText().toString()).append(" To:").append(DoTransfer.this.to.getText().toString()).append(" Amount:").append(DoTransfer.this.amount.getText().toString()).append("\n").toString());
+            try {
+              stringBuilder = new StringBuilder();
+              this();
+              String str3 = stringBuilder.append(Environment.getExternalStorageDirectory()).append("/Statements_").append(DoTransfer.this.usernameBase64ByteString).append(".html").toString();
+              BufferedWriter bufferedWriter = new BufferedWriter();
+              FileWriter fileWriter = new FileWriter();
+              this(str3, true);
+              this(fileWriter);
+              bufferedWriter.write(str);
+              bufferedWriter.write("<hr>");
+              bufferedWriter.close();
+            } catch (IOException iOException) {}
+          } catch (JSONException jSONException) {
+            jSONException.printStackTrace();
+          } 
+          return;
+        } 
+      } else {
+        return;
+      } 
+      Toast.makeText(DoTransfer.this.getApplicationContext(), "Transfer Failed", 1).show();
+      System.out.println("Message:Failure From:" + DoTransfer.this.from.getText().toString() + " To:" + DoTransfer.this.to.getText().toString() + " Amount:" + DoTransfer.this.amount.getText().toString());
+      String str1 = new String("\nMessage:Failure From:" + DoTransfer.this.from.getText().toString() + " To:" + DoTransfer.this.to.getText().toString() + " Amount:" + DoTransfer.this.amount.getText().toString() + "\n");
+      String str2 = Environment.getExternalStorageDirectory() + "/Statements_" + DoTransfer.this.usernameBase64ByteString + ".html";
+      try {
+        BufferedWriter bufferedWriter = new BufferedWriter();
+        FileWriter fileWriter = new FileWriter();
+        this(str2, true);
+        this(fileWriter);
+        bufferedWriter.write(str1);
+        bufferedWriter.write("<hr>");
+        bufferedWriter.close();
+      } catch (IOException iOException) {
+        iOException.toString();
+      } 
+    }
+  }
+}
